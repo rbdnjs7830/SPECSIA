@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPECSIA: Stylization Dataset for Novel-View Enhancement in Drawing-based 3D Animation</title>
+  <meta name="description" content="SPECSIA-15K and DraViE for novel-view enhancement in drawing-based 3D animation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & tokens ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent:     #2C5F8A;
+      --accent-lt:  #e8f0f8;
+      --accent-mid: #4a80b0;
+      --text:       #1a1a1a;
+      --muted:      #666;
+      --bg:         #ffffff;
+      --bg-alt:     #f7f8fa;
+      --border:     #e2e4e8;
+      --max-w:      900px;
+      --r:          10px;
+      --mono:       'JetBrains Mono','Fira Code','Courier New',monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); line-height: 1.65; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { display: block; max-width: 100%; height: auto; border-radius: 8px; }
+
+    /* ─── Nav ───────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.93);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem;
+      display: flex; align-items: center;
+    }
+    .nav-brand { font-weight: 700; font-size: 0.95rem; color: var(--accent); padding: 0.75rem 0; margin-right: auto; white-space: nowrap; }
+    .nav-links { display: flex; list-style: none; flex-wrap: wrap; }
+    .nav-links a { display: block; padding: 0.75rem 0.75rem; font-size: 0.8rem; font-weight: 500; color: var(--muted); transition: color .15s; }
+    .nav-links a:hover { color: var(--accent); text-decoration: none; }
+
+    /* ─── Layout ────────────────────────────────────────────────── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3.5rem 0; }
+    section.alt { background: var(--bg-alt); }
+    h2.section-title {
+      font-family: 'Source Serif 4', serif; font-size: 1.6rem; font-weight: 600;
+      color: var(--accent); margin-bottom: 1.6rem;
+      padding-bottom: 0.45rem; border-bottom: 2px solid var(--accent-lt);
+    }
+    .caption { font-size: 0.8rem; color: var(--muted); font-style: italic; margin-top: 0.5rem; line-height: 1.5; }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* ─── Header ────────────────────────────────────────────────── */
+    #header { padding: 3.5rem 0 2.5rem; text-align: center; }
+.paper-title {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(1.35rem, 3.8vw, 2rem);
+      font-weight: 600; line-height: 1.25; margin-bottom: 1.3rem;
+      max-width: 780px; margin-left: auto; margin-right: auto;
+    }
+    .authors { font-size: 1rem; margin-bottom: .45rem; }
+    .authors sup { font-size: .7em; color: var(--accent); }
+    .affiliations { font-size: .82rem; color: var(--muted); margin-bottom: 1.7rem; }
+    .affiliations sup { font-size: .75em; color: var(--accent); }
+    .venue-badge {
+      display: inline-block; margin-bottom: 1rem;
+      padding: .3rem .85rem; border-radius: 20px;
+      background: var(--accent); color: #fff;
+      font-size: .82rem; font-weight: 700; letter-spacing: .04em;
+    }
+    .link-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .48rem 1.05rem; border-radius: 6px;
+      font-size: .87rem; font-weight: 600;
+      border: 2px solid var(--accent); color: var(--accent); background: var(--bg);
+      transition: all .15s; cursor: pointer;
+    }
+    .btn:hover { background: var(--accent); color: #fff; text-decoration: none; }
+
+    /* ─── Placeholder ───────────────────────────────────────────── */
+    .ph {
+      background: #e9edf2; display: flex; align-items: center; justify-content: center;
+      color: #999; font-size: .85rem; min-height: 220px; border-radius: 8px;
+      border: 1px dashed #ccc;
+    }
+
+    /* ─── Abstract ──────────────────────────────────────────────── */
+    .teaser-wrap { margin-bottom: 1.75rem; border-radius: var(--r); overflow: hidden; border: 1px solid var(--border); }
+    .abstract-box {
+      background: var(--bg-alt); border-left: 4px solid var(--accent);
+      border-radius: 0 var(--r) var(--r) 0; padding: 1.4rem 1.7rem;
+    }
+    .abstract-label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; color: var(--accent); text-transform: uppercase; margin-bottom: .5rem; }
+    .abstract-text { font-size: .95rem; text-align: justify; }
+
+    /* ─── Two-column figure ─────────────────────────────────────── */
+    .fig-row { display: grid; gap: 1rem; margin-bottom: .5rem; }
+    .fig-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    .fig-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 600px) {
+      .fig-row.cols-2, .fig-row.cols-3 { grid-template-columns: 1fr; }
+    }
+    .fig-item { display: flex; flex-direction: column; }
+    .fig-item .sub-caption { font-size: .75rem; color: var(--muted); margin-top: .35rem; text-align: center; font-style: italic; }
+    .fig-item img { border: 1px solid var(--border); }
+
+    /* ─── Method cards ──────────────────────────────────────────── */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 640px) { .method-grid { grid-template-columns: 1fr; } }
+    .method-card { border: 1px solid var(--border); border-radius: var(--r); padding: 1.3rem 1.4rem; background: var(--bg); }
+    .method-card .icon { font-size: 1.5rem; margin-bottom: .5rem; }
+    .method-card h3 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: .55rem; }
+    .method-card p, .method-card li { font-size: .87rem; color: var(--muted); line-height: 1.6; }
+    .method-card ul { padding-left: 1.15rem; margin-top: .35rem; }
+    .method-card li { margin-bottom: .15rem; }
+    .pipeline-steps { display: flex; flex-direction: column; gap: .4rem; margin-top: .5rem; }
+    .step { display: flex; align-items: flex-start; gap: .5rem; font-size: .84rem; color: var(--muted); }
+    .step-num { flex-shrink: 0; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--accent); color: #fff; font-size: .68rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: .15rem; }
+
+    /* ─── Section sub-title ─────────────────────────────────────── */
+    h3.sub-title { font-size: 1rem; font-weight: 700; color: var(--text); margin: 1.8rem 0 .6rem; }
+    h3.sub-title:first-child { margin-top: 0; }
+
+    /* ─── Tables ────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--r); border: 1px solid var(--border); margin-bottom: .5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    thead tr { background: var(--accent); color: #fff; }
+    thead tr.subh { background: #3d6f9e; }
+    th, td { padding: .52rem .7rem; text-align: center; white-space: nowrap; }
+    th { font-weight: 600; font-size: .8rem; }
+    td:first-child { text-align: left; font-weight: 500; }
+    tbody tr:nth-child(even) { background: #f5f7fb; }
+    tbody tr:hover { background: var(--accent-lt); }
+    .ours { background: var(--accent-lt) !important; }
+    .ours td { color: var(--accent); font-weight: 600; }
+    .novel { background: rgba(44,95,138,.07); }
+
+    /* ─── Preference bars ───────────────────────────────────────── */
+    .pref-grid { display: flex; flex-direction: column; gap: .9rem; max-width: 560px; margin-bottom: 1rem; }
+    .pref-label { font-size: .84rem; font-weight: 600; margin-bottom: .28rem; }
+    .pref-bar { display: flex; border-radius: 6px; overflow: hidden; height: 1.9rem; border: 1px solid var(--border); }
+    .pref-ours { background: var(--accent); display: flex; align-items: center; justify-content: flex-end; padding-right: .5rem; font-size: .75rem; font-weight: 700; color: #fff; transition: width .7s ease; }
+    .pref-prior { background: #c8d8e8; display: flex; align-items: center; padding-left: .5rem; font-size: .74rem; font-weight: 600; color: var(--accent); transition: width .7s ease; }
+    .pref-legend { display: flex; gap: 1.2rem; font-size: .78rem; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+    /* ─── Video ─────────────────────────────────────────────────── */
+    .video-wrap { border-radius: var(--r); overflow: hidden; border: 1px solid var(--border); background: #111; margin-bottom: .5rem; }
+    .video-wrap video { width: 100%; display: block; }
+    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 620px) { .video-grid { grid-template-columns: 1fr; } }
+
+    /* ─── Ablation ──────────────────────────────────────────────── */
+    .ablation-note { font-size: .88rem; color: var(--muted); margin-bottom: 1rem; }
+
+    /* ─── Limitation ────────────────────────────────────────────── */
+    .limit-wrap { display: grid; grid-template-columns: 1fr 1.6fr; gap: 1.25rem; align-items: start; }
+    @media (max-width: 620px) { .limit-wrap { grid-template-columns: 1fr; } }
+    .limit-text { font-size: .9rem; }
+    .limit-text p { margin-bottom: .7rem; }
+
+    /* ─── Dataset ───────────────────────────────────────────────── */
+    .stat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    @media (max-width: 520px) { .stat-cards { grid-template-columns: 1fr; } }
+    .stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); padding: 1.1rem 1rem; text-align: center; }
+    .stat-card .s-icon { font-size: 1.7rem; margin-bottom: .35rem; }
+    .stat-card .s-num { font-size: 1.5rem; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: .2rem; }
+    .stat-card .s-desc { font-size: .75rem; color: var(--muted); }
+    .note-box { background: #fff8e1; border: 1px solid #f0c040; border-radius: 8px; padding: .8rem 1.05rem; font-size: .83rem; color: #665500; margin-bottom: 1.1rem; }
+    .split-wrap { max-width: 360px; }
+
+    /* ─── BibTeX ────────────────────────────────────────────────── */
+    .bibtex-wrap { position: relative; }
+    .bib-box { background: #1e2430; border-radius: var(--r); padding: 1.4rem 1.7rem; overflow-x: auto; }
+    .bib-box pre { font-family: var(--mono); font-size: .82rem; line-height: 1.7; color: #d4e0f0; white-space: pre; }
+    .copy-btn {
+      position: absolute; top: .7rem; right: .7rem;
+      background: rgba(255,255,255,.12); color: #cdd;
+      border: 1px solid rgba(255,255,255,.2); border-radius: 6px;
+      padding: .28rem .65rem; font-size: .74rem; font-weight: 600;
+      cursor: pointer; transition: all .15s; font-family: 'Inter', sans-serif;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.22); color: #fff; }
+    .copy-btn.copied { background: #2a7; border-color: #2a7; color: #fff; }
+
+    /* ─── Footer ────────────────────────────────────────────────── */
+    footer { background: var(--text); color: #bbb; text-align: center; padding: 1.75rem 1.5rem; font-size: .8rem; }
+    footer a { color: #90b8d8; }
+    .footer-links { margin-top: .4rem; display: flex; justify-content: center; gap: 1.2rem; }
+  </style>
+</head>
+<body>
+
+<!-- ─── Nav ───────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">SPECSIA</span>
+    <ul class="nav-links">
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#video">Video</a></li>
+      <li><a href="#ablation">Ablation</a></li>
+      <li><a href="#limitation">Limitation</a></li>
+      <li><a href="#dataset">Dataset</a></li>
+      <li><a href="#bibtex">BibTeX</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ─── Header ───────────────────────────────────────────────── -->
+<section id="header">
+  <div class="container">
+    <span class="venue-badge">ECCV 2026</span>
+    <h1 class="paper-title">SPECSIA: Stylization Dataset for Novel-View Enhancement<br>in Drawing-based 3D Animation</h1>
+    <p class="authors">
+      <a href="https://rbdnjs7830.github.io/" target="_blank" rel="noopener">Kyuwon Kim</a><sup>1</sup>&ensp;
+      <a href="https://dbstjswo505.github.io/" target="_blank" rel="noopener">Sunjae Yoon</a><sup>2</sup>&ensp;
+      <a href="https://sanctusfactory.com/family.php" target="_blank" rel="noopener">Chang D. Yoo</a><sup>1</sup>
+    </p>
+    <p class="affiliations">
+      <sup>1</sup>KAIST School of Electrical Engineering&emsp;
+      <sup>2</sup>Chung-Ang University Department of AI
+    </p>
+    <div class="link-buttons">
+      <a class="btn" href="#">📄 Paper</a>
+      <a class="btn" href="https://huggingface.co/datasets/Kyu0528/SPECSIA-15K">📦 Dataset (HF)</a>
+      <a class="btn" href="https://github.com/rbdnjs7830/SPECSIA_release">💻 Code (GitHub)</a>
+      <a class="btn" href="#video">🎬 Video</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Abstract ─────────────────────────────────────────────── -->
+<section id="abstract" class="alt">
+  <div class="container">
+    <div class="teaser-wrap">
+      <img src="./static/images/teaser.png" alt="SPECSIA teaser"
+           onerror="this.outerHTML='<div class=\'ph\' style=\'min-height:280px\'>teaser.png</div>'" />
+    </div>
+    <div class="abstract-box">
+      <div class="abstract-label">Abstract</div>
+      <p class="abstract-text">
+        Generating animation from a single 2D drawing is challenging because the output must
+        preserve character appearance while remaining plausible and temporally coherent under
+        motion. Existing drawing-based 3D animation pipelines often use sample-wise 2D
+        refinement to align animated renderings with the input image, but such optimization
+        tends to overfit to the observed view and fails to correct projection-induced artifacts
+        in novel views. To address this limitation, we introduce <strong>SPECSIA-15K</strong>, a paired
+        stylization dataset for novel-view enhancement in drawing-based 3D animation,
+        constructed from multi-view renderings of 3DBiCar with 10 views per object and 14,980
+        artifact-corrupted projection/refinement-target pairs. We further present
+        <strong>Drawing-based View Enhancement (DraViE)</strong>, a lightweight plug-and-play refinement
+        module trained with data-level priors to remove novel-view artifacts while preserving
+        drawing style and motion plausibility. Experiments show consistent gains in novel-view
+        fidelity and temporal coherence with lower per-character adaptation cost than
+        sample-wise fine-tuning.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Motivation ───────────────────────────────────────────── -->
+<section id="motivation">
+  <div class="container">
+    <h2 class="section-title">Motivation</h2>
+    <div class="fig-row cols-2">
+      <div class="fig-item">
+        <img src="./static/images/Qual_problem.png" alt="Qualitative analysis on novel-view"
+             onerror="this.outerHTML='<div class=\'ph\'>Qual_problem.png</div>'" />
+        <p class="sub-caption">(a) Artifacts in novel-view renderings — missing contours and speckle-like regions (red boxes).</p>
+      </div>
+      <div class="fig-item">
+        <img src="./static/images/clip_fid_plot.png" alt="CLIP vs FID plot"
+             onerror="this.outerHTML='<div class=\'ph\'>clip_fid_plot.png</div>'" />
+        <p class="sub-caption">(b) CLIP–FID joint plot: blue (frontal) vs. red (novel) — quality consistently drops in novel views.</p>
+      </div>
+    </div>
+    <p class="caption">Existing drawing-based 3D animation pipelines produce systematic artifacts in novel views. Lines connect frontal/novel-view scores for each method, revealing a consistent quality drop.</p>
+  </div>
+</section>
+
+<!-- ─── Method ───────────────────────────────────────────────── -->
+<section id="method" class="alt">
+  <div class="container">
+    <h2 class="section-title">Method</h2>
+
+    <!-- Pipeline comparison (Fig 3) -->
+    <h3 class="sub-title">Sample-wise vs. Data-level Alignment</h3>
+    <img src="./static/images/methods.png" alt="Comparison of pipelines"
+         onerror="this.outerHTML='<div class=\'ph\'>methods.png</div>'" />
+    <p class="caption">
+      (a) Prior sample-wise stylization networks optimize per-character, overfitting to the observed view.
+      (b) Our approach trains a data-level prior on SPECSIA-15K, enabling generalization to novel views.
+    </p>
+
+    <hr class="divider" />
+
+    <!-- Cards -->
+    <div class="method-grid">
+      <div class="method-card">
+        <div class="icon">🗂️</div>
+        <h3>SPECSIA-15K Dataset</h3>
+        <p>Paired dataset for 2D projection refinement in drawing-based animation.</p>
+        <ul>
+          <li>1,498 3DBiCar characters</li>
+          <li>10 uniformly-sampled viewpoints/char</li>
+          <li><strong>14,980</strong> paired samples total</li>
+          <li>Triplet input: (<em>Z</em>, <em>Z</em><sub>mask</sub>, <em>Z</em><sub>pos</sub>) + GT <em>Y*</em></li>
+          <li>512 × 512 RGBA PNG</li>
+        </ul>
+      </div>
+      <div class="method-card">
+        <div class="icon">🔧</div>
+        <h3>DraViE Pipeline</h3>
+        <p>Plug-and-play 2D refinement module trained with data-level priors.</p>
+        <div class="pipeline-steps">
+          <div class="step"><span class="step-num">1</span><span><strong>Pre-train</strong> on SPECSIA-15K with patch-wise (32×32) L₁ + adversarial + VGG loss</span></div>
+          <div class="step"><span class="step-num">2</span><span><strong>Lightweight adaptation</strong> (optional) — single-epoch fine-tune on input character</span></div>
+          <div class="step"><span class="step-num">3</span><span><strong>Inference</strong> — fully convolutional; processes full-resolution frames</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dataset construction (Fig 5) -->
+    <h3 class="sub-title">Dataset Construction</h3>
+    <img src="./static/images/dataset.png" alt="SPECSIA-15K dataset construction"
+         onerror="this.outerHTML='<div class=\'ph\'>dataset.png</div>'" />
+    <p class="caption">
+      For each character: render 10 views as artifact-free GT <em>Y*</em> → reconstruct 3D from frontal view → project to same viewpoints as artifact-prone <em>Z</em>. Each sample provides a triplet (<em>Z</em>, <em>Z</em><sub>mask</sub>, <em>Z</em><sub>pos</sub>) paired with <em>Y*</em>.
+    </p>
+
+    <hr class="divider" />
+
+    <!-- Pre-training (Fig 6) -->
+    <h3 class="sub-title">Pre-training with Patch-wise Objective</h3>
+    <img src="./static/images/Pretrain.png" alt="DraViE pre-training"
+         onerror="this.outerHTML='<div class=\'ph\'>Pretrain.png</div>'" />
+    <p class="caption">
+      Patch centers are sampled from the foreground mask. Aligned 32×32 patches from the input triplet and <em>Y*</em> are used for patch-wise supervision. At inference, the fully convolutional network processes full-resolution frames directly.
+    </p>
+
+    <!-- Pipeline overview (Fig 4) -->
+    <h3 class="sub-title">DraViE Inference Pipeline</h3>
+    <img src="./static/images/pipeline.png" alt="DraViE inference pipeline"
+         onerror="this.outerHTML='<div class=\'ph\'>pipeline.png</div>'" />
+    <p class="caption">
+      (a) Pre-training on SPECSIA-15K. (b) Optional lightweight adaptation to the input character.
+      (c) Plug-and-play post-correction on novel-view projections from any upstream 3D animation system.
+    </p>
+  </div>
+</section>
+
+<!-- ─── Results ──────────────────────────────────────────────── -->
+<section id="results">
+  <div class="container">
+    <h2 class="section-title">Experimental Results</h2>
+
+    <!-- Table 1 -->
+    <h3 class="sub-title">Table 1 — Quantitative Evaluation</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" style="vertical-align:bottom;text-align:left">Method</th>
+            <th colspan="4">Frontal-view</th>
+            <th colspan="4" style="background:#3a6a9a">Novel-view ⭑</th>
+          </tr>
+          <tr class="subh">
+            <th>CLIP↑</th><th>SSIM↑</th><th>LPIPS↓</th><th>FID↓</th>
+            <th class="novel">CLIP↑</th><th class="novel">SSIM↑</th><th class="novel">LPIPS↓</th><th class="novel">FID↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DSU (DrawingSpinUp)</td>
+            <td>0.902</td><td>0.840</td><td>0.212</td><td>205.19</td>
+            <td>0.847</td><td>0.833</td><td>0.250</td><td>280.83</td>
+          </tr>
+          <tr>
+            <td>OSF</td>
+            <td>0.905</td><td>0.841</td><td>0.211</td><td>202.24</td>
+            <td>0.850</td><td>0.835</td><td>0.249</td><td>270.21</td>
+          </tr>
+          <tr class="ours">
+            <td>DraViE <strong>(Ours)</strong></td>
+            <td><strong>0.905</strong></td><td><strong>0.846</strong></td><td><strong>0.208</strong></td><td><strong>201.31</strong></td>
+            <td><strong>0.859</strong></td><td><strong>0.840</strong></td><td><strong>0.245</strong></td><td><strong>206.13</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">⭑ Novel-view gains are the primary contribution. Metrics averaged over 10 runs.</p>
+
+    <hr class="divider" />
+
+    <!-- Table 2 -->
+    <h3 class="sub-title">Table 2 — Cross-pipeline Generalization</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Upstream</th>
+            <th>DSU CLIP↑</th><th>OSF CLIP↑</th><th style="background:#3a6a9a">Ours CLIP↑</th>
+            <th>DSU FID↓</th><th>OSF FID↓</th><th style="background:#3a6a9a">Ours FID↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Wonder3D</td>  <td>.874</td><td>.877</td><td class="ours"><strong>.882</strong></td><td>243</td><td>236</td><td class="ours"><strong>203</strong></td></tr>
+          <tr><td>InstantMesh</td><td>.831</td><td>.835</td><td class="ours"><strong>.840</strong></td><td>242</td><td>233</td><td class="ours"><strong>205</strong></td></tr>
+          <tr><td>CRM</td>       <td>.807</td><td>.810</td><td class="ours"><strong>.848</strong></td><td>271</td><td>266</td><td class="ours"><strong>239</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Same DraViE model applied to three different upstream 3D reconstruction backends without retraining.</p>
+
+    <hr class="divider" />
+
+    <!-- User preference -->
+    <h3 class="sub-title">User Preference Study (30-person blinded A/B)</h3>
+    <div class="pref-grid" id="pref-grid">
+      <div>
+        <div class="pref-label">Artifact Reduction</div>
+        <div class="pref-bar"><div class="pref-ours" style="width:73.3%" data-w="73.3%">73.3%</div><div class="pref-prior" style="width:26.7%" data-w="26.7%">26.7%</div></div>
+      </div>
+      <div>
+        <div class="pref-label">Style Preservation</div>
+        <div class="pref-bar"><div class="pref-ours" style="width:60%" data-w="60%">60.0%</div><div class="pref-prior" style="width:40%" data-w="40%">40.0%</div></div>
+      </div>
+      <div>
+        <div class="pref-label">Overall Quality</div>
+        <div class="pref-bar"><div class="pref-ours" style="width:86.7%" data-w="86.7%">86.7%</div><div class="pref-prior" style="width:13.3%" data-w="13.3%">13.3%</div></div>
+      </div>
+    </div>
+    <div class="pref-legend">
+      <span><span class="dot" style="background:var(--accent)"></span>DraViE (Ours)</span>
+      <span><span class="dot" style="background:#c8d8e8"></span>Prior methods</span>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Qualitative -->
+    <h3 class="sub-title">Qualitative Comparison</h3>
+    <img src="./static/images/Qual_result.png" alt="Qualitative comparison"
+         onerror="this.outerHTML='<div class=\'ph\' style=\'min-height:300px\'>Qual_result.png</div>'" />
+    <p class="caption">DraViE vs. DrawingSpinUp (DSU) and OSF across diverse characters and motions. Red boxes highlight corrected projection artifacts.</p>
+  </div>
+</section>
+
+<!-- ─── Video ────────────────────────────────────────────────── -->
+<section id="video" class="alt">
+  <div class="container">
+    <h2 class="section-title">Video Results</h2>
+
+    <h3 class="sub-title">Comparison Set 1</h3>
+    <div class="video-wrap">
+      <video controls preload="metadata">
+        <source src="./static/videos/set1.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <p class="caption">Drawing-based 3D animation results — DraViE reduces speckle artifacts and preserves drawing style across diverse motions.</p>
+
+    <hr class="divider" />
+
+    <h3 class="sub-title">Comparison Set 2</h3>
+    <div class="video-wrap">
+      <video controls preload="metadata">
+        <source src="./static/videos/set2.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <p class="caption">DraViE preserves fine-grained appearance details (mouth shape, clothing logos, hair color, stroke patterns) under viewpoint changes.</p>
+
+    <hr class="divider" />
+
+    <h3 class="sub-title">Failure Cases</h3>
+    <div class="video-wrap">
+      <video controls preload="metadata">
+        <source src="./static/videos/failure.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <p class="caption">Representative failure cases. DraViE may hallucinate plausible structures (e.g., leg separation) when upstream reconstruction topology is incorrect.</p>
+  </div>
+</section>
+
+<!-- ─── Ablation ──────────────────────────────────────────────── -->
+<section id="ablation">
+  <div class="container">
+    <h2 class="section-title">Ablation Study</h2>
+
+    <!-- Table ablation -->
+    <h3 class="sub-title">Table 3 — Effect of Lightweight Adaptation and Positional Hint</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" style="vertical-align:bottom;text-align:left">Setting</th>
+            <th colspan="4">Frontal-view</th>
+            <th colspan="4" style="background:#3a6a9a">Novel-view</th>
+          </tr>
+          <tr class="subh">
+            <th>CLIP↑</th><th>SSIM↑</th><th>LPIPS↓</th><th>FID↓</th>
+            <th class="novel">CLIP↑</th><th class="novel">SSIM↑</th><th class="novel">LPIPS↓</th><th class="novel">FID↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>w/o Lightweight Adaptation</td><td>0.900</td><td>0.840</td><td>0.212</td><td>207.15</td><td>0.838</td><td>0.834</td><td>0.250</td><td>221.48</td></tr>
+          <tr class="ours"><td><strong>w/ Lightweight Adaptation</strong></td><td><strong>0.905</strong></td><td><strong>0.846</strong></td><td><strong>0.208</strong></td><td><strong>201.31</strong></td><td><strong>0.859</strong></td><td><strong>0.840</strong></td><td><strong>0.245</strong></td><td><strong>206.13</strong></td></tr>
+          <tr><td style="border-top:1px solid var(--border)">w/o Positional Hint</td><td>0.900</td><td>0.845</td><td>0.212</td><td>205.81</td><td>0.844</td><td>0.839</td><td>0.250</td><td>318.39</td></tr>
+          <tr class="ours"><td><strong>w/ Positional Hint (full)</strong></td><td><strong>0.905</strong></td><td><strong>0.846</strong></td><td><strong>0.208</strong></td><td><strong>201.31</strong></td><td><strong>0.859</strong></td><td><strong>0.840</strong></td><td><strong>0.245</strong></td><td><strong>206.13</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Removing the positional hint causes a large novel-view FID increase (206 → 318), confirming its role in location-aware correction.</p>
+
+    <hr class="divider" />
+
+    <!-- Lightweight adaptation (Fig 8) -->
+    <h3 class="sub-title">Effect of Lightweight Adaptation</h3>
+    <img src="./static/images/ablation_adap.png" alt="Lightweight adaptation ablation"
+         onerror="this.outerHTML='<div class=\'ph\'>ablation_adap.png</div>'" />
+    <p class="caption">Without adaptation, the pre-trained prior removes artifacts but deviates from the input drawing appearance (e.g., mismatched colors, over-smoothed strokes). With adaptation, input-specific style is preserved.</p>
+
+    <hr class="divider" />
+
+    <!-- Positional hint (Fig 9) -->
+    <h3 class="sub-title">Effect of Positional Hint</h3>
+    <img src="./static/images/ablation_pos.png" alt="Positional hint ablation"
+         onerror="this.outerHTML='<div class=\'ph\'>ablation_pos.png</div>'" />
+    <p class="caption">Without the positional hint, the model applies conservative smoothing and fails to recover fine structures (e.g., mouth) or remove speckling artifacts in specific regions (e.g., hair, legs).</p>
+  </div>
+</section>
+
+<!-- ─── Limitation ───────────────────────────────────────────── -->
+<section id="limitation" class="alt">
+  <div class="container">
+    <h2 class="section-title">Limitations</h2>
+    <div class="limit-wrap">
+      <div>
+        <img src="./static/images/Limitation.png" alt="Failure cases"
+             onerror="this.outerHTML='<div class=\'ph\' style=\'min-height:200px\'>Limitation.png</div>'" />
+        <p class="caption">(a) Fused legs. (b) Hallucinated gap.</p>
+      </div>
+      <div class="limit-text">
+        <p>DraViE is a modular 2D post-correction component and cannot fully recover from severe upstream failures such as incorrect topology, missing large regions, or erroneous rigging.</p>
+        <p>When the reconstructed mesh merges the legs into a single region, DraViE cannot reliably reconstruct the correct separation. In some cases the learned prior may hallucinate a leg gap — favoring a plausible silhouette over the true input geometry.</p>
+        <p>SPECSIA-15K may encode systematic biases from the Wonder3D reconstruction backend and 3DBiCar source assets. Additionally, DraViE processes frames independently without explicit temporal attention, so rapid rotations or high-frequency details already absent in the projection may still cause flickering.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Dataset ──────────────────────────────────────────────── -->
+<section id="dataset">
+  <div class="container">
+    <h2 class="section-title">SPECSIA-15K Dataset</h2>
+    <div class="stat-cards">
+      <div class="stat-card"><div class="s-icon">🗂️</div><div class="s-num">14,980</div><div class="s-desc">Paired samples</div></div>
+      <div class="stat-card"><div class="s-icon">👤</div><div class="s-num">1,498</div><div class="s-desc">3DBiCar characters</div></div>
+      <div class="stat-card"><div class="s-icon">🔭</div><div class="s-num">10</div><div class="s-desc">Viewpoints/character</div></div>
+    </div>
+    <div class="note-box">
+      ⚠️ <strong>License notice:</strong> SPECSIA-15K contains only rendered pairs permitted for redistribution.
+      Raw 3DBiCar 3D assets and Mixamo motion files are <em>not included</em> and must be obtained separately under their respective licenses.
+    </div>
+    <div class="split-wrap table-wrap">
+      <table>
+        <thead><tr><th style="text-align:left">Split</th><th>Characters</th><th>Samples</th></tr></thead>
+        <tbody>
+          <tr><td>Train</td><td>1,298</td><td>12,980</td></tr>
+          <tr><td>Val</td><td>100</td><td>1,000</td></tr>
+          <tr><td>Test</td><td>100</td><td>1,000</td></tr>
+          <tr style="font-weight:700;background:var(--accent-lt)"><td>Total</td><td>1,498</td><td>14,980</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <br />
+    <a class="btn" href="#">📦 Download on Hugging Face</a>
+  </div>
+</section>
+
+<!-- ─── BibTeX ───────────────────────────────────────────────── -->
+<section id="bibtex" class="alt">
+  <div class="container">
+    <h2 class="section-title">BibTeX</h2>
+    <div class="bibtex-wrap">
+      <div class="bib-box">
+        <pre id="bib-text">TBA</pre>
+      </div>
+      <button class="copy-btn" id="copy-btn" onclick="copyBib()">Copy</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ───────────────────────────────────────────────── -->
+<footer>
+  <p>© 2026 SPECSIA Authors. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="https://ee.kaist.ac.kr" target="_blank" rel="noopener">KAIST EE</a>
+    <a href="https://ai.cau.ac.kr" target="_blank" rel="noopener">Chung-Ang University AI</a>
+  </div>
+</footer>
+
+<script>
+  /* ── Copy BibTeX ── */
+  function copyBib() {
+    const text = document.getElementById('bib-text').textContent;
+    const btn  = document.getElementById('copy-btn');
+    const done = () => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(done);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); done();
+    }
+  }
+
+  /* ── Animate preference bars on scroll ── */
+  (function () {
+    if (!('IntersectionObserver' in window)) return;
+    const ours  = document.querySelectorAll('.pref-ours');
+    const prior = document.querySelectorAll('.pref-prior');
+    const allBars = [...ours, ...prior];
+    const targets = allBars.map(b => b.style.width);
+    allBars.forEach(b => { b.style.width = '0'; b.style.transition = 'none'; });
+
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        allBars.forEach(b => (b.style.transition = ''));
+        requestAnimationFrame(() => {
+          allBars.forEach((b, i) => { b.style.width = targets[i]; });
+        });
+        obs.disconnect();
+      }
+    }, { threshold: 0.3 });
+
+    const grid = document.getElementById('pref-grid');
+    if (grid) obs.observe(grid);
+  })();
+</script>
+</body>
+</html>
